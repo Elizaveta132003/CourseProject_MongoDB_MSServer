@@ -8,13 +8,13 @@ using System.Data.SqlClient;
 
 namespace Infrastructure.Data.SQLServer
 {
-	public class OrdersRepository : ReadByDataBase,IRepository<Order>, IOrdersRepository
+	public class OrdersRepository : ReadByDataBase, IRepository<Order>, IOrdersRepository
 	{
-		private string _insertQuery= @$"INSERT INTO Orders (IdClient,OrderDate,DateOfSgipment,Status, Price, Street, HouseNumber, IdEmployee)
+		private string _insertQuery = @$"INSERT INTO Orders (IdClient,OrderDate,DateOfSgipment,Status, Price, Street, HouseNumber, IdEmployee)
                                         VALUES(@idClient, @orderDate, @dateOfSgipment,@status,@price, @street, @houseNumber, @idEmployee)";
-		private string _insertQueryIntoOrderProducts= @$"INSERT INTO OrderProducts (IdOrder,IdProduct,QuantityProducts) 
+		private string _insertQueryIntoOrderProducts = @$"INSERT INTO OrderProducts (IdOrder,IdProduct,QuantityProducts) 
                                                          VALUES(@idOrder,@idProduct,@qiantityProducts)";
-		private string _updateQuery= @$"UPDATE Orders SET Id=@id, IdClient=@idClient, OrderDate=@orderDate, DateOfSgipment=@dateOfSgipment,
+		private string _updateQuery = @$"UPDATE Orders SET Id=@id, IdClient=@idClient, OrderDate=@orderDate, DateOfSgipment=@dateOfSgipment,
                                   Status = @status, Price=@price, IdEmployee=@idEmployee, Street=@street, HouseNumber=@houseNumber where Id=@id";
 		private string _getAll = @"select Orders.Id, Users.Id, Users.NameOrganization, Users.PhoneNumber, Users.Password, 
 									Orders.OrderDate, Orders.DateOfSgipment, Orders.Status,
@@ -27,22 +27,6 @@ namespace Infrastructure.Data.SQLServer
 									inner join Employees 
 									on Employees.Id=Orders.IdEmployee ";
 		private string _deleteQuery = @"Delete from Orders where Orders.Id=@id";
-			 //@$"select Orders.Id, Users.Id, Users.NameOrganization, Users.PhoneNumber, Users.Password, 
-			 //                        Orders.OrderDate, Orders.DateOfSgipment, Orders.Status,
-			 //                        Orders.Price, Employees.Id, Employees.PhoneNumber, Employees.Password, Employees.LastName,
-			 //                        Employees.FirstName, Employees.MiddleName, Employees.PositionCode,
-			 //                        Orders.Street, Orders.HouseNumber 
-			 //			from Orders	
-			 //			inner join Users 
-			 //			on Orders.IdClient=Users.Id
-			 //                        inner join OrderProducts 
-			 //			on Orders.Id=OrderProducts.IdOrder
-			 //                        inner join Employees 
-			 //			on Employees.Id=Orders.IdEmployee 
-			 //			inner join Products 
-			 //			on OrderProducts.IdProduct=Products.Id
-			 //                        inner join TypeOfProducts 
-			 //                        on TypeOfProducts.Id=Products.ProductTypeCode";
 
 		public OrdersRepository(string connectionString) : base(connectionString)
 		{
@@ -68,7 +52,7 @@ namespace Infrastructure.Data.SQLServer
 
 				for (int i = 0; i < item.Orders.Count; i++)
 				{
-					string sql = _insertQueryIntoOrderProducts; 
+					string sql = _insertQueryIntoOrderProducts;
 					SqlCommand sqlCommand = new SqlCommand(sql, connect);
 					sqlCommand.Parameters.Add("@idOrder", SqlDbType.Int).Value = GetAll()[GetAll().Count - 1].Id;
 					sqlCommand.Parameters.Add("@idProduct", SqlDbType.Int).Value = item.Orders[i].Product.Id;
@@ -85,9 +69,9 @@ namespace Infrastructure.Data.SQLServer
 				return false;
 			}
 		}
-		
 
-		public bool Delete(Order item)
+
+		public bool Delete(int id)
 		{
 			try
 			{
@@ -95,7 +79,7 @@ namespace Infrastructure.Data.SQLServer
 				connect.Open();
 				string query = _deleteQuery;
 				SqlCommand command = new SqlCommand(query, connect);
-				command.Parameters.Add("@id", SqlDbType.Int).Value = item.Id;
+				command.Parameters.Add("@id", SqlDbType.Int).Value = id;
 				command.ExecuteNonQuery();
 
 				return true;
@@ -117,7 +101,7 @@ namespace Infrastructure.Data.SQLServer
 		{
 			id = reader.GetInt32(0);
 		}
-		
+
 
 		public List<Order> GetAll()
 		{
@@ -137,9 +121,7 @@ namespace Infrastructure.Data.SQLServer
 			order.Orders = GetItems(reader.GetInt32(0));
 			order.Price = reader.GetDecimal(8);
 			var employee = new Employee(reader.GetInt32(9), reader.GetString(10), reader.GetString(11), reader.GetString(12), reader.GetString(13),
-				reader.GetString(14), reader.GetInt32(15))
-				
-				;
+				reader.GetString(14), reader.GetInt32(15));
 			order.Employee = employee;
 			order.Street = reader.GetString(16);
 			order.HouseNumber = reader.GetString(17);
@@ -147,7 +129,7 @@ namespace Infrastructure.Data.SQLServer
 			list.Add(order);
 
 		}
-		
+
 
 		public Order GetT(int id)
 		{
@@ -168,27 +150,27 @@ namespace Infrastructure.Data.SQLServer
 
 			return order;
 		}
-		private void GetOrder(SqlDataReader reader,Order order)
+		private void GetOrder(SqlDataReader reader, Order order)
 		{
 			order.Id = reader.GetInt32(0);
-			var client=new Client( reader.GetString(2), reader.GetString(3), reader.GetString(4));
+			var client = new Client(reader.GetString(2), reader.GetString(3), reader.GetString(4));
 			order.Client = client;
 			order.OrderDate = reader.GetDateTime(5);
-			order.DateOfSqipment=reader.GetDateTime(6);
-			order.Status=reader.GetString(7);
+			order.DateOfSqipment = reader.GetDateTime(6);
+			order.Status = reader.GetString(7);
 			order.Orders = GetItems(reader.GetInt32(0));
 			order.Price = reader.GetDecimal(8);
 			var employee = new Employee(reader.GetInt32(9), reader.GetString(10), reader.GetString(11), reader.GetString(12), reader.GetString(13),
 				reader.GetString(14), reader.GetInt32(15));
-			order.Employee = employee;	
-			order.Street=reader.GetString(16);
+			order.Employee = employee;
+			order.Street = reader.GetString(16);
 			order.HouseNumber = reader.GetString(17);
 		}
 		private List<OrderItem> GetItems(int idOrder)
 		{
-			List<OrderItem> items= new List<OrderItem>();
+			List<OrderItem> items = new List<OrderItem>();
 
-			string query=$@"select Orders.Id,Products.Id, Products.ProductName, Products.ProductTypeCode, Products.Price,
+			string query = $@"select Orders.Id,Products.Id, Products.ProductName, Products.ProductTypeCode, Products.Price,
                             OrderProducts.QuantityProducts 
 							from OrderProducts 
 							inner join Products
@@ -198,11 +180,11 @@ namespace Infrastructure.Data.SQLServer
 
 			Read(query, items, ProductsItems);
 
-			return items;	
+			return items;
 		}
 		private void ProductsItems(SqlDataReader reader, List<OrderItem> items)
 		{
-			var product = new Product( reader.GetInt32(1),reader.GetString(2), reader.GetInt32(3), reader.GetDecimal(4));
+			var product = new Product(reader.GetInt32(1), reader.GetString(2), reader.GetInt32(3), reader.GetDecimal(4));
 			var item = new OrderItem(product, reader.GetInt32(5));
 			items.Add(item);
 		}
@@ -221,7 +203,7 @@ namespace Infrastructure.Data.SQLServer
 				command.Parameters.Add("@orderDate", SqlDbType.DateTime).Value = item.OrderDate;
 				command.Parameters.Add("@dateOfSgipment", SqlDbType.DateTime).Value = item.DateOfSqipment;
 				command.Parameters.Add("@status", SqlDbType.VarChar).Value = item.Status;
-				command.Parameters.Add("@price", SqlDbType.Decimal).Value=item.Price;
+				command.Parameters.Add("@price", SqlDbType.Decimal).Value = item.Price;
 				command.Parameters.Add("@idEmployee", SqlDbType.Int).Value = item.Employee.Id;
 				command.Parameters.Add("@street", SqlDbType.VarChar).Value = item.Street;
 				command.Parameters.Add("@houseNumber", SqlDbType.VarChar).Value = item.HouseNumber;
@@ -251,9 +233,9 @@ namespace Infrastructure.Data.SQLServer
 		{
 
 			var product = new Product(reader.GetString(1), reader.GetInt32(2), reader.GetDecimal(3));
-			var count=reader.GetInt32(4);
+			var count = reader.GetInt32(4);
 
-			var item=new OrderItem(product, count);
+			var item = new OrderItem(product, count);
 
 			list.Add(item);
 		}

@@ -7,9 +7,9 @@ using System.Data.SqlClient;
 
 namespace Infrastructure.Data.SQLServer
 {
-	internal class StockRepository : ReadByDataBase, IRepository<Stock>
+	public class StockRepository : ReadByDataBase, IRepository<Stock>
 	{
-		private string _insertQuery= @$"INSERT INTO Stock (DateDeliveryToStock, IdProduct, Count,IdEmployee) 
+		private string _insertQuery = @$"INSERT INTO Stock (DateDeliveryToStock, IdProduct, Count,IdEmployee) 
 										VALUES(@dateDelivery,@idProduct,@count,@idEmployee)";
 		private string _getAllQuery = @"select Stock.Id, Stock.DateDeliveryToStock, Products.Id, Products.ProductName,
 									  Product.ProductTypeCode, Products.Price, Stock.Count, Employees.Id, Employees.PhoneNumber, 
@@ -17,7 +17,7 @@ namespace Infrastructure.Data.SQLServer
 									  Stock.DateShipmentFromStock from Stock inner join Products on Stock.IdProduct=Products.Id
 									  inner join Employees on Stock.IdEmployee=Employees.Id inner join TypeOfProducts 
 									  on Products.ProductTypeCode=TypeOfProducts.Id";
-		private string _updateQuery= @$"UPDATE Stock SET DateDeliveryToStock=@dateOfReceipt, IdProduct=@idProduct, Count=@count,
+		private string _updateQuery = @$"UPDATE Stock SET DateDeliveryToStock=@dateOfReceipt, IdProduct=@idProduct, Count=@count,
                                         IdEmployee=@idEmployee, DateShipmentFromStock=@dateOfDispatch where Id=@id";
 
 		public StockRepository(string connectionString) : base(connectionString)
@@ -52,7 +52,7 @@ namespace Infrastructure.Data.SQLServer
 			}
 		}
 
-		public bool Delete(Stock item)
+		public bool Delete(int id)
 		{
 			throw new NotImplementedException();
 			//TODO: Когда продукты забирают со склада и количество продуктов сводится к нулю
@@ -63,7 +63,7 @@ namespace Infrastructure.Data.SQLServer
 			List<Stock> stocks = new List<Stock>();
 
 			Read(_getAllQuery, stocks, GetStocks);
-				
+
 			return stocks;
 		}
 		private void GetStocks(SqlDataReader reader, List<Stock> stocks)
@@ -71,7 +71,7 @@ namespace Infrastructure.Data.SQLServer
 			Stock stock = new Stock();
 			stock.Id = reader.GetInt32(0);
 			stock.DateOfReceipt = reader.GetDateTime(1);
-			stock.Product = new Product( reader.GetString(3), reader.GetInt32(4), reader.GetDecimal(5));
+			stock.Product = new Product(reader.GetString(3), reader.GetInt32(4), reader.GetDecimal(5));
 			stock.Count = reader.GetInt32(6);
 			stock.Employee = new Employee(reader.GetInt32(7), reader.GetString(8), reader.GetString(9), reader.GetString(10), reader.GetString(11), reader.GetString(12), reader.GetInt32(13));
 			stock.DateOfDispatch = reader.GetDateTime(14);
@@ -96,7 +96,7 @@ namespace Infrastructure.Data.SQLServer
 		{
 			stock.Id = reader.GetInt32(0);
 			stock.DateOfReceipt = reader.GetDateTime(1);
-			stock.Product = new Product( reader.GetString(3), reader.GetInt32(4), reader.GetDecimal(5));
+			stock.Product = new Product(reader.GetString(3), reader.GetInt32(4), reader.GetDecimal(5));
 			stock.Count = reader.GetInt32(6);
 			stock.Employee = new Employee(reader.GetInt32(7), reader.GetString(8), reader.GetString(9), reader.GetString(10), reader.GetString(11), reader.GetString(12), reader.GetInt32(13));
 			stock.DateOfDispatch = reader.GetDateTime(14);
@@ -106,7 +106,7 @@ namespace Infrastructure.Data.SQLServer
 		{
 			try
 			{
-				var id=item.Id;
+				var id = item.Id;
 				var dateOfReceipt = item.DateOfReceipt;
 				var idProduct = item.Product.Id;
 				var count = item.Count;

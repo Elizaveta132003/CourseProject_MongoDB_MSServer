@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace Domain.Core.Models.Roles
 {
-	public class Client:EntityBase, IAutorizationValidation
+	public class Client : EntityBase
 	{
 		public string NameOrganization { get; set; }
 		public string PhoneNumber { get; set; }
@@ -22,9 +22,9 @@ namespace Domain.Core.Models.Roles
 
 		public Client() { }
 
-		public Client(int id,string nameOrganization, string phoneNumber, string password)
+		public Client(int id, string nameOrganization, string phoneNumber, string password)
 		{
-			Id= id;
+			Id = id;
 			NameOrganization = nameOrganization;
 			PhoneNumber = phoneNumber;
 			Password = password;

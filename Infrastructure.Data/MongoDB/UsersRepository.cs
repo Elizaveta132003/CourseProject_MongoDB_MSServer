@@ -1,5 +1,7 @@
 ﻿using Domain.Core.Models.Roles;
 using Domain.Interfaces;
+using MongoDB.Bson;
+using MongoDB.Driver;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -8,31 +10,53 @@ using System.Threading.Tasks;
 
 namespace Infrastructure.Data.MongoDB
 {
-	public class UsersRepository : IRepository<Client>
+	public class UsersRepository : MainMongoRepository<Client>
 	{
-		public bool Create(Client item)
+		public UsersRepository(string connectionString) : base(connectionString, "users")
 		{
-			throw new NotImplementedException();
 		}
 
-		public bool Delete(Client item)
+		public override async Task<bool> CreateAsync(Client item)
 		{
-			throw new NotImplementedException();
+			var parser = new MongoParser();
+			item.Id = parser.MaxIndex(_mongoCollection) + 1;
+
+			var document = new BsonDocument
+			{
+				{"_id",item.Id},
+				{"nameOrganization", item.NameOrganization},
+				{"password", item.Password},
+				{"phoneNumber", item.PhoneNumber }
+			};
+
+			await _mongoCollection.InsertOneAsync(document);
+
+			return true;
 		}
 
-		public List<Client> GetAll()
+		public override async Task<bool> UpdateAsync(Client item)
 		{
-			throw new NotImplementedException();
+			var filter = Builders<BsonDocument>.Filter.Eq("_id", item.Id);
+
+			var update = Builders<BsonDocument>.Update.Set("nameOrganization", item.NameOrganization);
+			await _mongoCollection.UpdateOneAsync(filter, update);
+
+			update = Builders<BsonDocument>.Update.Set("password", item.Password);
+			await _mongoCollection.UpdateOneAsync(filter, update);
+
+			update = Builders<BsonDocument>.Update.Set("phoneNumber", item.PhoneNumber);
+			await _mongoCollection.UpdateOneAsync(filter, update);
+
+			return true;
 		}
 
-		public Client GetT(int id)
-		{
-			throw new NotImplementedException();
-		}
-
-		public bool Update(Client item)
-		{
-			throw new NotImplementedException();
-		}
+		protected override Client Initialization(BsonDocument item)
+			=> new Client()
+			{
+				Id = item.GetValue("_id").ToInt32(),
+				NameOrganization = item.GetValue("nameOrganization").ToString(),
+				Password = item.GetValue("password").ToString(),
+				PhoneNumber = item.GetValue("phoneNumber").ToString()
+			};
 	}
 }

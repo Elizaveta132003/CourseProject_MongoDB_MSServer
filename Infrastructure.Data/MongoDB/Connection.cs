@@ -1,11 +1,12 @@
-﻿using System;
+﻿using MongoDB.Driver;
+using System;
 using System.Collections.Generic;
 using System.Data.SqlClient;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Infrastructure.Data.SQLServer
+namespace Infrastructure.Data.MongoDB
 {
 	public abstract class Connection
 	{
@@ -17,9 +18,9 @@ namespace Infrastructure.Data.SQLServer
 		}
 
 
-		protected SqlConnection Connect()
+		protected MongoClient Connect()
 		{
-			return new SqlConnection(_connectionString);
+			return new MongoClient(_connectionString);
 		}
 	}
 }

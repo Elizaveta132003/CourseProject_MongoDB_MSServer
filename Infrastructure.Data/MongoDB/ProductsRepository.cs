@@ -1,43 +1,55 @@
 ﻿using Domain.Core.Models.Products;
-using Domain.Interfaces;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using MongoDB.Bson;
+using MongoDB.Driver;
 
 namespace Infrastructure.Data.MongoDB
 {
-	public class ProductsRepository : IRepository<Product>, IProductRepository
+	public class ProductsRepository : MainMongoRepository<Product>
 	{
-		public bool Create(Product item)
+		public ProductsRepository(string connectionString) : base(connectionString, "products")
 		{
-			throw new NotImplementedException();
 		}
 
-		public bool Delete(Product item)
+		public override async Task<bool> CreateAsync(Product item)
 		{
-			throw new NotImplementedException();
+			var parser = new MongoParser();
+
+			item.Id = parser.MaxIndex(_mongoCollection) + 1;
+			var document = new BsonDocument
+			{
+				{"_id", item.Id},
+				{"name", item.Name},
+				{"type", item.Type},
+				{"price", item.Price}
+			};
+			await _mongoCollection.InsertOneAsync(document);
+
+			return true;
 		}
 
-		public List<Product> GetAll()
+		public override async Task<bool> UpdateAsync(Product item)
 		{
-			throw new NotImplementedException();
+			var filter = Builders<BsonDocument>.Filter.Eq("_id", item.Id);
+
+			var update = Builders<BsonDocument>.Update.Set("name", item.Name);
+			await _mongoCollection.UpdateOneAsync(filter, update);
+
+			update = Builders<BsonDocument>.Update.Set("type", item.Type);
+			await _mongoCollection.UpdateOneAsync(filter, update);
+
+			update = Builders<BsonDocument>.Update.Set("price", item.Price);
+			await _mongoCollection.UpdateOneAsync(filter, update);
+
+			return true;
 		}
 
-		public List<Product> GetAllNotHide()
-		{
-			throw new NotImplementedException();
-		}
-
-		public Product GetT(int id)
-		{
-			throw new NotImplementedException();
-		}
-
-		public bool Update(Product item)
-		{
-			throw new NotImplementedException();
-		}
+		protected override Product Initialization(BsonDocument item)
+			=> new Product()
+			{
+				Id = item.GetValue("_id").ToInt32(),
+				Name = item.GetValue("name").ToString(),
+				Type = item.GetValue("type").ToInt32(),
+				Price = item.GetValue("price").ToInt32()
+			};
 	}
 }

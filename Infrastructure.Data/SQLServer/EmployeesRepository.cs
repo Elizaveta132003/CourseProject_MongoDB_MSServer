@@ -8,11 +8,11 @@ namespace Infrastructure.Data.SQLServer
 	public class EmployeesRepository : ReadByDataBase, IRepository<Employee>
 	{
 		private string _deleteQuery = $"UPDATE Employees SET Hide=@hide WHERE Id=@id";
-		private string _insertQuery= @$"INSERT INTO Employees (PhoneNumber, Password, LastName, FirstName, MiddleName, PositionCode, Hide) 
+		private string _insertQuery = @$"INSERT INTO Employees (PhoneNumber, Password, LastName, FirstName, MiddleName, PositionCode, Hide) 
                                         VALUES(@phoneNumber,@password,@lastName, @firstName, @middleName, @positionCode, @hide)";
 		private string _getAllQuery = @"SELECT Employees.Id, Employees.PhoneNumber,Employees.Password, Employees.LastName, Employees.FirstName, Employees.MiddleName, 
                                        Employees.PositionCode, Employees.Hide, Employees.PositionCode FROM Employees INNER JOIN Positions ON PositionCode=Positions.Id";
-		private string _updateQuery= @$"UPDATE Employees SET PhoneNumber=@phoneNumber, Password=@password, LastName=@lastName,
+		private string _updateQuery = @$"UPDATE Employees SET PhoneNumber=@phoneNumber, Password=@password, LastName=@lastName,
                                         FirstName=@firstName, MiddleName=@middleName, PositionCode=@positionCode, Hide=@hide where Id=@id";
 
 		public EmployeesRepository(string connectionString) : base(connectionString)
@@ -50,10 +50,10 @@ namespace Infrastructure.Data.SQLServer
 			{
 				return false;
 			}
-			
+
 		}
 
-		public bool Delete(Employee item)
+		public bool Delete(int id)
 		{
 			try
 			{
@@ -61,7 +61,7 @@ namespace Infrastructure.Data.SQLServer
 				var connect = Connect();
 				connect.Open();
 				SqlCommand command = new SqlCommand(query, connect);
-				command.Parameters.Add("@id", SqlDbType.Int).Value = item.Id;
+				command.Parameters.Add("@id", SqlDbType.Int).Value = id;
 				SqlParameter parameter = new SqlParameter("@hide", 1);
 
 				command.Parameters.Add(parameter);
@@ -74,7 +74,7 @@ namespace Infrastructure.Data.SQLServer
 			catch
 			{
 				return false;
-			}	
+			}
 		}
 
 		public List<Employee> GetAll()
@@ -82,7 +82,7 @@ namespace Infrastructure.Data.SQLServer
 			List<Employee> _employees = new List<Employee>();
 			Read(_getAllQuery, _employees, SelectAllEmployees);
 			return _employees;
-			
+
 		}
 		private void SelectAllEmployees(SqlDataReader reader, List<Employee> _employees)
 		{
@@ -117,7 +117,7 @@ namespace Infrastructure.Data.SQLServer
 			employee.PositionCode = reader.GetInt32(6);
 			employee.Id = reader.GetInt32(0);
 
-			
+
 
 
 			_employees.Add(employee);

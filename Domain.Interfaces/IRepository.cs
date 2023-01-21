@@ -8,6 +8,6 @@ namespace Domain.Interfaces
 		public T GetT(int id);
 		public bool Create(T item);
 		public bool Update(T item);
-		public bool Delete(T item);
+		public bool Delete(int id);
 	}
 }

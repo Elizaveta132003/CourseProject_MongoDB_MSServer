@@ -10,7 +10,7 @@ namespace Infrastructure.Data.SQLServer
 	{
 
 		private string _insertQuery = $"INSERT INTO Users (NameOrganization, PhoneNumber, Password) VALUES(@nameOrganization,@phoneNumber,@password)";
-		private string _updateQuery= $"UPDATE Users SET NameOrganization=@nameOrganization, PhoneNumber=@phoneNumber, Password=@password where Id=@id";
+		private string _updateQuery = $"UPDATE Users SET NameOrganization=@nameOrganization, PhoneNumber=@phoneNumber, Password=@password where Id=@id";
 		private string _deleteQuery = "Delete from Users where Users.Id=@id";
 		public UsersRepository(string connectionString) : base(connectionString)
 		{
@@ -26,7 +26,7 @@ namespace Infrastructure.Data.SQLServer
 
 				var connect = Connect();
 				connect.Open();
-				string query =_insertQuery;
+				string query = _insertQuery;
 
 				SqlCommand command = new SqlCommand(query, connect);
 				command.Parameters.Add("@nameOrganization", SqlDbType.VarChar).Value = nameOrganization;
@@ -42,7 +42,7 @@ namespace Infrastructure.Data.SQLServer
 			}
 		}
 
-		public bool Delete(Client item)
+		public bool Delete(int id)
 		{
 			try
 			{
@@ -50,7 +50,7 @@ namespace Infrastructure.Data.SQLServer
 				connect.Open();
 				string query = _deleteQuery;
 				SqlCommand command = new SqlCommand(query, connect);
-				command.Parameters.Add("@id", SqlDbType.Int).Value = item.Id;
+				command.Parameters.Add("@id", SqlDbType.Int).Value = id;
 				command.ExecuteNonQuery();
 				return true;
 			}
@@ -70,15 +70,15 @@ namespace Infrastructure.Data.SQLServer
 		}
 		private void GetClients(SqlDataReader reader, List<Client> clients)
 		{
-			int id=reader.GetInt32(0);
+			int id = reader.GetInt32(0);
 			string nameOrganization = reader.GetString(1);
 			string phoneNumber = reader.GetString(2);
 			string password = reader.GetString(3);
 
-			var client = new Client( id,nameOrganization, phoneNumber, password);
+			var client = new Client(id, nameOrganization, phoneNumber, password);
 			clients.Add(client);
 		}
-		private void GetClient(SqlDataReader reader,Client client)
+		private void GetClient(SqlDataReader reader, Client client)
 		{
 			client.Id = reader.GetInt32(0);
 			client.NameOrganization = reader.GetString(1);
@@ -98,7 +98,7 @@ namespace Infrastructure.Data.SQLServer
 		{
 			try
 			{
-				var id=item.Id;
+				var id = item.Id;
 				var nameOrganization = item.NameOrganization;
 				var phoneNumber = item.PhoneNumber;
 				var password = item.Password;

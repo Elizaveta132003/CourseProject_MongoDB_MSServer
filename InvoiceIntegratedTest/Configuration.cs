@@ -4,10 +4,11 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Xunit.Abstractions;
+using Xunit.Sdk;
 
 namespace IntegratedTest
 {
-	public class Configuration
+	public class Configuration : ITestCaseOrderer
 	{
 		public IEnumerable<TTestCase> OrderTestCases<TTestCase>(
 			IEnumerable<TTestCase> testCases) where TTestCase : ITestCase

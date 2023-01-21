@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace Domain.Core.Models.Roles
 {
-	public class RegisteredClient : IAutorizationValidation
+	public class RegisteredClient
 	{
 		public string NameOrganization { get; set; }
 		public string PhoneNumber { get; set; }

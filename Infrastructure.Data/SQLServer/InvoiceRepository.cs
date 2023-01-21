@@ -14,28 +14,15 @@ using System.Xml.Linq;
 
 namespace Infrastructure.Data.SQLServer
 {
-	public class InvoiceRepository : ReadByDataBase,IRepository<Invoice>
+	public class InvoiceRepository : ReadByDataBase, IRepository<Invoice>
 	{
 
-		private string _insertQuery= @$"INSERT INTO Invoice (RegistrationDate, NameOrganization, Street, HouseNumber, IdOrder, IdClient, IdEmployee) 
+		private string _insertQuery = @$"INSERT INTO Invoice (RegistrationDate, NameOrganization, Street, HouseNumber, IdOrder, IdClient, IdEmployee) 
 										VALUES(@registrationDate,@nameOrganization,@street, @houseNumber, @idOrder, @idClient,@idEmployee)";
 		private string _getAllQuery = @"select Invoice.Id, Invoice.RegistrationDate, Invoice.NameOrganization, Invoice.Street,Invoice.HouseNumber, Invoice.IdClient,
                                         Invoice.IdEmployee, Invoice.IdOrder
                                         from Invoice";
-			//@"select Invoice.Id, Invoice.RegistrationDate, Invoice.NameOrganization, Invoice.Street, 
-			//						  Invoice.HouseNumber, Orders.Id, Orders.IdClient, Orders.OrderDate, Orders.DateOfSgipment,
-			//						  Orders.Status, Orders.Price, Orders.IdEmployee, Orders.Street, Orders.HouseNumber, Users.Id, 
-			//						  Users.NameOrganization, Users.PhoneNumber, Users.Password, Employees.Id, Employees.PhoneNumber,
-			//						  Employees.Password, Employees.LastName, Employees.FirstName, Employees.MiddleName, Employees.PositionCode,
-			//						  Employees.Hide
-			//                                   from Invoice 
-			//                                   inner join Orders
-			//                                   on Invoice.IdOrder=Orders.Id
-			//						  inner join Users 
-			//                                   on Users.Id=Invoice.IdClient 
-			//                                   inner join Employees
-			//						  on Employees.Id=Invoice.IdEmployee";
-		private string _updateQuery= @$"UPDATE Invoice SET RegistrationDate=@registrationDate, NameOrganization=@nameOrganization, Street=@street, 
+		private string _updateQuery = @$"UPDATE Invoice SET RegistrationDate=@registrationDate, NameOrganization=@nameOrganization, Street=@street, 
 										HouseNumber=@houseNumber, IdOrder=@idOrder, IdClient=@idClient, IdEmployee=@idEmployee where Id=@id";
 
 		private IRepository<Order> _orderRepository;
@@ -92,7 +79,7 @@ namespace Infrastructure.Data.SQLServer
 			}
 		}
 
-		public bool Delete(Invoice item)
+		public bool Delete(int id)
 		{
 			throw new NotImplementedException();
 		}
@@ -105,7 +92,7 @@ namespace Infrastructure.Data.SQLServer
 				Read(_getAllQuery, invoices, GetAllInvoices);
 
 				return invoices;
-				
+
 			}
 			catch
 			{
@@ -115,7 +102,7 @@ namespace Infrastructure.Data.SQLServer
 
 		private void GetAllInvoices(SqlDataReader reader, List<Invoice> invoices)
 		{
-			var id=reader.GetInt32(0);
+			var id = reader.GetInt32(0);
 			var registrationDate = reader.GetDateTime(1);
 			var nameOrganization = reader.GetString(2);
 			var street = reader.GetString(3);
@@ -136,7 +123,7 @@ namespace Infrastructure.Data.SQLServer
 		//{
 		//	return new Client( reader.GetString(15), reader.GetString(16), reader.GetString(17));
 		//}
-		private Employee GetEmployee(SqlDataReader reader) 
+		private Employee GetEmployee(SqlDataReader reader)
 			=> _employeeRepository.GetT(reader.GetInt32(6));
 		//{
 		//	return new Employee(reader.GetInt32(18), reader.GetString(19), reader.GetString(20), reader.GetString(21), reader.GetString(22),
@@ -148,7 +135,7 @@ namespace Infrastructure.Data.SQLServer
 		//	return new Order(reader.GetInt32(5), GetClient(reader), reader.GetDateTime(7), reader.GetDateTime(8),
 		//		reader.GetString(9), GetItemProducts(reader.GetInt32(5)), reader.GetDecimal(10), GetEmployee(reader), reader.GetString(12), reader.GetString(13));
 		//}
-		
+
 
 		private List<OrderItem> GetItemProducts(int idOrder)
 		{
@@ -163,7 +150,7 @@ namespace Infrastructure.Data.SQLServer
 		}
 		private void ItemsInList(SqlDataReader reader, List<OrderItem> orderItems)
 		{
-			OrderItem item = new OrderItem(new Product( reader.GetString(1), reader.GetInt32(2), reader.GetDecimal(3)), reader.GetInt32(4));
+			OrderItem item = new OrderItem(new Product(reader.GetString(1), reader.GetInt32(2), reader.GetDecimal(3)), reader.GetInt32(4));
 			orderItems.Add(item);
 		}
 
@@ -171,7 +158,7 @@ namespace Infrastructure.Data.SQLServer
 		{
 			try
 			{
-				var invoice=new Invoice();
+				var invoice = new Invoice();
 				Read(_getAllQuery, invoice, GetInvoice);
 
 				return invoice;
@@ -198,11 +185,11 @@ namespace Infrastructure.Data.SQLServer
 		{
 			try
 			{
-				var id=item.Id;
-				var registrationDate=item.RegistrationDate;
-				var nameOrganization=item.NameOrganization;
-				var street=item.Street;
-				var houseNumber=item.HouseNumber;
+				var id = item.Id;
+				var registrationDate = item.RegistrationDate;
+				var nameOrganization = item.NameOrganization;
+				var street = item.Street;
+				var houseNumber = item.HouseNumber;
 				var idOrder = item.Order.Id;
 				var idClient = item.Client.Id;
 				var idEmployee = item.Employee.Id;

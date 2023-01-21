@@ -1,38 +1,72 @@
 ﻿using Domain.Core.Models.Roles;
-using Domain.Interfaces;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using MongoDB.Bson;
+using MongoDB.Driver;
 
 namespace Infrastructure.Data.MongoDB
 {
-	public class EmployeesRepository : IRepository<Employee>
+	public class EmployeesRepository : MainMongoRepository<Employee>
 	{
-		public bool Create(Employee item)
+		public EmployeesRepository(string connectionString) : base(connectionString, "employees")
 		{
-			throw new NotImplementedException();
 		}
 
-		public bool Delete(Employee item)
+		public override async Task<bool> CreateAsync(Employee item)
 		{
-			throw new NotImplementedException();
+			var parser = new MongoParser();
+			item.Id = parser.MaxIndex(_mongoCollection) + 1;
+
+			var document = new BsonDocument
+			{
+				{"_id",item.Id},
+				{"phoneNumber", item.PhoneNumber},
+				{"password", item.Password},
+				{"firstName", item.FirstName },
+				{"lastName", item.LastName },
+				{"middleName", item.MiddleName },
+				{"positionCode", item.PositionCode }
+			};
+
+			await _mongoCollection.InsertOneAsync(document);
+
+			return true;
 		}
 
-		public List<Employee> GetAll()
+		public override async Task<bool> UpdateAsync(Employee item)
 		{
-			throw new NotImplementedException();
+			var filter = Builders<BsonDocument>.Filter.Eq("_id", item.Id);
+
+			var update = Builders<BsonDocument>.Update.Set("phoneNumber", item.PhoneNumber);
+			await _mongoCollection.UpdateOneAsync(filter, update);
+
+			update = Builders<BsonDocument>.Update.Set("password", item.Password);
+			await _mongoCollection.UpdateOneAsync(filter, update);
+
+
+			update = Builders<BsonDocument>.Update.Set("firstName", item.FirstName);
+			await _mongoCollection.UpdateOneAsync(filter, update);
+
+			update = Builders<BsonDocument>.Update.Set("lastName", item.LastName);
+			await _mongoCollection.UpdateOneAsync(filter, update);
+
+			update = Builders<BsonDocument>.Update.Set("middleName", item.MiddleName);
+			await _mongoCollection.UpdateOneAsync(filter, update);
+
+			update = Builders<BsonDocument>.Update.Set("positionCode", item.PositionCode);
+			await _mongoCollection.UpdateOneAsync(filter, update);
+
+			return true;
 		}
 
-		public Employee GetT(int id)
-		{
-			throw new NotImplementedException();
-		}
-
-		public bool Update(Employee item)
-		{
-			throw new NotImplementedException();
-		}
+		protected override Employee Initialization(BsonDocument item)
+			=> new Employee()
+			{
+				Id = item.GetValue("_id").ToInt32(),
+				PhoneNumber = item.GetValue("phoneNumber").ToString(),
+				Password = item.GetValue("password").ToString(),
+				LastName = item.GetValue("lastName").ToString(),
+				FirstName = item.GetValue("firstName").ToString(),
+				MiddleName = item.GetValue("middleName").ToString(),
+				PositionCode = item.GetValue("positionCode").ToInt32()
+			};
 	}
 }

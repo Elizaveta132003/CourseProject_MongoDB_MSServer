@@ -1,33 +1,30 @@
 ﻿using Domain.Core.Models;
 using Domain.Core.Models.Orders;
-using Domain.Core.Models.Roles;
 using Domain.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 using Services.Interfaces.Repositories;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
 namespace Services.Implementations.Repositories
 {
-	internal class DispatcherService : IDispatcherService
+	public class InvoiceRepositoryService : IInvoiceRepositoryService
 	{
-		IRepository<Order> OrderRepository { get; set; }
+		public IRepository<Invoice> InvoiceRepository { get; set; }
 
-		public DispatcherService(IRepository<Order> orderRepository)
+		public InvoiceRepositoryService(IRepository<Invoice> invoiceRepository)
 		{
-			OrderRepository = orderRepository;
+			InvoiceRepository = invoiceRepository;
 		}
-		public BaseResponse<bool> CreatePlanOfProduce(Order order)
+
+		public BaseResponse<bool> CreateInvoice(Invoice invoice)
 		{
 			try
 			{
-				var value = OrderRepository.GetT(order.Id);
-
-				if (value == null)
+				if (invoice == null)
 				{
 					return new BaseResponse<bool>()
 					{
@@ -37,9 +34,41 @@ namespace Services.Implementations.Repositories
 					};
 				}
 
-				order.Status = "In stock";
+				var data = InvoiceRepository.Create(invoice);
 
-				OrderRepository.Update(order);
+				return new BaseResponse<bool>()
+				{
+					Data = data,
+					Description = "Completed successfully",
+					StatusCode = new OkResult()
+				};
+			}
+			catch (Exception ex)
+			{
+				return new BaseResponse<bool>()
+				{
+					Data = true,
+					Description = ex.Message,
+					StatusCode = new NotFoundResult()
+				};
+			}
+		}
+
+		public BaseResponse<bool> DeleteInvoice(int id)
+		{
+			try
+			{
+				if (id == null)
+				{
+					return new BaseResponse<bool>()
+					{
+						Data = false,
+						Description = "Not found",
+						StatusCode = new NotFoundResult()
+					};
+				}
+
+				InvoiceRepository.Delete(id);
 
 				return new BaseResponse<bool>()
 				{
@@ -59,22 +88,24 @@ namespace Services.Implementations.Repositories
 			}
 		}
 
-		public BaseResponse<List<Order>> GetAllOrders()
+		public BaseResponse<List<Invoice>> GetAllInvoice()
 		{
+
 			try
 			{
-				var data = OrderRepository.GetAll();
+				var data = InvoiceRepository.GetAll();
 
-				return new BaseResponse<List<Order>>()
+				return new BaseResponse<List<Invoice>>()
 				{
 					Data = data,
-					Description = "Completed successfully",
+					Description = "Completed secessfully",
 					StatusCode = new OkResult()
 				};
+
 			}
 			catch (Exception ex)
 			{
-				return new BaseResponse<List<Order>>()
+				return new BaseResponse<List<Invoice>>()
 				{
 					Description = ex.Message,
 					StatusCode = new NotFoundResult()
@@ -82,11 +113,11 @@ namespace Services.Implementations.Repositories
 			}
 		}
 
-		public BaseResponse<bool> Update(Order order)
+		public BaseResponse<bool> UpdateInvoice(Invoice invoice)
 		{
 			try
 			{
-				var value = OrderRepository.GetT(order.Id);
+				var value = InvoiceRepository.GetT(invoice.Id);
 
 				if (value == null)
 				{
@@ -98,7 +129,7 @@ namespace Services.Implementations.Repositories
 					};
 				}
 
-				OrderRepository.Update(order);
+				InvoiceRepository.Update(invoice);
 
 				return new BaseResponse<bool>()
 				{

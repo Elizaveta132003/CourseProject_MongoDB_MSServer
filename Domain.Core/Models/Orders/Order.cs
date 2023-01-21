@@ -1,13 +1,8 @@
 ﻿using Domain.Core.Models.Roles;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Domain.Core.Models.Orders
 {
-	public class Order:EntityBase
+	public class Order : EntityBase
 	{
 		public Client Client { get; set; }
 		public DateTime OrderDate { get; set; }
@@ -19,9 +14,21 @@ namespace Domain.Core.Models.Orders
 		public string Street { get; set; }
 		public string HouseNumber { get; set; }
 
-		public Order(int id,Client client, DateTime orderDate, DateTime dateOfSqipment, string status, List<OrderItem> orders, decimal price, Employee employee, string street, string houseNumber)
+		public Order(int id, Client client, DateTime orderDate, DateTime dateOfSqipment, string status, List<OrderItem> orders, decimal price, Employee employee, string street, string houseNumber)
 		{
 			Id = id;
+			Client = client;
+			OrderDate = orderDate;
+			DateOfSqipment = dateOfSqipment;
+			Status = status;
+			Orders = orders;
+			Price = GetPrice(orders);
+			Employee = employee;
+			Street = street;
+			HouseNumber = houseNumber;
+		}
+		public Order(Client client, DateTime orderDate, DateTime dateOfSqipment, string status, List<OrderItem> orders, decimal price, Employee employee, string street, string houseNumber)
+		{
 			Client = client;
 			OrderDate = orderDate;
 			DateOfSqipment = dateOfSqipment;
@@ -37,18 +44,21 @@ namespace Domain.Core.Models.Orders
 		{
 			decimal price = 0;
 
-			foreach(var item in orders)
+			foreach (var item in orders)
 			{
-				price+=item.Price;
+				price += item.Price;
 			}
 
 			return price;
 		}
 		public Order(List<OrderItem> orders)
-		{ 
-			Price= GetPrice(orders);
+		{
+			Price = GetPrice(orders);
 		}
 		public Order() { }
+
+		public override string? ToString()
+			=> $"{Id}, {Client.Id}, {OrderDate}, {DateOfSqipment}, {Status}, {Price}, {Employee.Id}, {Street}, {HouseNumber}";
 
 		/*public Order(int id, Client client, DateTime orderDate, DateTime dateOfSqipment, string status, List<OrderItem> orders, decimal price, Employee employee)
 		{

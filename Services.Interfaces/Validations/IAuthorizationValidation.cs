@@ -10,5 +10,6 @@ namespace Services.Interfaces.Validations
 	{
 		public bool PhoneNumberValidate(string phoneNumber);
 		public bool PasswordIsValidate(string password);
+		public bool NameOrganizationValide(string nameOrganization);
 	}
 }

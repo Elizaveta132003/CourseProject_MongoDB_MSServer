@@ -1,4 +1,5 @@
 ﻿using Domain.Core.Models;
+using Domain.Core.Models.Orders;
 using Domain.Core.Models.Products;
 using Domain.Interfaces;
 using Microsoft.AspNetCore.Mvc;
@@ -6,12 +7,11 @@ using Services.Interfaces.Repositories;
 
 namespace Services.Implementations.Repositories
 {
-    public class EconomistService : IEconomistService
+	public class ProductRepositoryService : IProductRepositoryService
 	{
-
 		public IRepository<Product> ProductRepository { get; set; }
 
-		public EconomistService(IRepository<Product> productRepository)
+		public ProductRepositoryService(IRepository<Product> productRepository)
 		{
 			ProductRepository = productRepository;
 		}
@@ -39,7 +39,7 @@ namespace Services.Implementations.Repositories
 					StatusCode = new OkResult()
 				};
 			}
-			catch(Exception ex)
+			catch (Exception ex)
 			{
 				return new BaseResponse<bool>()
 				{
@@ -50,11 +50,11 @@ namespace Services.Implementations.Repositories
 			}
 		}
 
-		public BaseResponse<bool> DeleteProduct(Product product)
+		public BaseResponse<bool> DeleteProduct(int id)
 		{
 			try
 			{
-				if(product == null)
+				if (id == null)
 				{
 					return new BaseResponse<bool>()
 					{
@@ -64,7 +64,7 @@ namespace Services.Implementations.Repositories
 					};
 				}
 
-				ProductRepository.Delete(product);
+				ProductRepository.Delete(id);
 
 				return new BaseResponse<bool>()
 				{
@@ -73,7 +73,7 @@ namespace Services.Implementations.Repositories
 					StatusCode = new OkResult()
 				};
 			}
-			catch(Exception ex)
+			catch (Exception ex)
 			{
 				return new BaseResponse<bool>()
 				{
@@ -88,7 +88,7 @@ namespace Services.Implementations.Repositories
 		{
 			try
 			{
-				var data=ProductRepository.GetAll();
+				var data = ProductRepository.GetAll();
 
 				return new BaseResponse<List<Product>>()
 				{
@@ -97,9 +97,32 @@ namespace Services.Implementations.Repositories
 					StatusCode = new OkResult()
 				};
 			}
-			catch(Exception ex)
+			catch (Exception ex)
 			{
 				return new BaseResponse<List<Product>>()
+				{
+					Description = ex.Message,
+					StatusCode = new NotFoundResult()
+				};
+			}
+		}
+
+		public BaseResponse<Product> GetProductById(int id)
+		{
+			try
+			{
+				var data = ProductRepository.GetT(id);
+
+				return new BaseResponse<Product>()
+				{
+					Data = data,
+					Description = "Completed successfully",
+					StatusCode = new OkResult()
+				};
+			}
+			catch (Exception ex)
+			{
+				return new BaseResponse<Product>()
 				{
 					Description = ex.Message,
 					StatusCode = new NotFoundResult()
@@ -130,7 +153,7 @@ namespace Services.Implementations.Repositories
 					StatusCode = new OkResult()
 				};
 			}
-			catch(Exception ex)
+			catch (Exception ex)
 			{
 				return new BaseResponse<bool>()
 				{

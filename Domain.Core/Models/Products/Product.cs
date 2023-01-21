@@ -6,14 +6,14 @@ using System.Threading.Tasks;
 
 namespace Domain.Core.Models.Products
 {
-	public class Product:EntityBase
+	public class Product : EntityBase
 	{
 
 		public string Name { get; set; }
 		public int Type { get; set; }
 		public decimal Price { get; set; }
 
-		public Product( string name, int type, decimal price)
+		public Product(string name, int type, decimal price)
 		{
 			//Id = id;
 			Name = name;
@@ -32,15 +32,12 @@ namespace Domain.Core.Models.Products
 		public override bool Equals(object? obj)
 		{
 			return obj is Product product &&
-				   Id == product.Id &&
-				   Name == product.Name &&
-				   Type == product.Type &&
-				   Price == product.Price;
+				   Name == product.Name;
 		}
 
 		public override int GetHashCode()
 		{
-			return HashCode.Combine(Id, Name, Type, Price);
+			return HashCode.Combine(Name);
 		}
 	}
 }
